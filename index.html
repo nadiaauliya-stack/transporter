@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colorful Transporter Controller</title>
+<style>
+:root{--bg:#202846;--panel:#171a39;--panel2:#211d45;--line:#3b356d;--text:#f1f0ff;--muted:#aaa8d4;--cyan:#16e3e6;--pink:#e84bd5;--purple:#a64dff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:22px;background:radial-gradient(ellipse at 10% 15%,#24526b 0,transparent 42%),radial-gradient(ellipse at 95% 85%,#44255f 0,transparent 42%),var(--bg);color:var(--text);font-family:system-ui,Segoe UI,sans-serif}.app{max-width:1400px;margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:23px 26px;border:1px solid #34305f;border-radius:24px;background:#161837;box-shadow:0 16px 42px #090b1c40}.brand h1{margin:0;font-size:clamp(22px,3vw,31px);font-weight:900;letter-spacing:1.5px;background:linear-gradient(90deg,var(--cyan),#ba72ed,var(--pink),#ffb44f);-webkit-background-clip:text;background-clip:text;color:transparent}.brand p{margin:7px 0 0;color:#b9b9df;font-size:12px}.header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.mode{border:1px solid #403875;background:#211e49;color:#b7b5df;border-radius:18px;padding:11px 16px;font-size:12px;font-weight:800}
+button{font:inherit;cursor:pointer;touch-action:none;transition:.15s}button:hover{filter:brightness(1.12)}button:active{transform:scale(.97)}.connect{border:0;color:white;background:linear-gradient(110deg,#bc46ee,#ec4ed0,#00cfd4);border-radius:18px;padding:12px 19px;font-size:12px;font-weight:800;box-shadow:0 0 25px #db4bd555}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}.panel{min-width:0;border:1px solid #302e61;border-radius:24px;background:rgba(23,26,58,.97);padding:28px 31px;box-shadow:0 15px 40px #080b1c35}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.panel-title{display:flex;align-items:center;gap:10px;font-weight:850;font-size:17px}.ico{font-size:21px;color:var(--cyan)}.helper{font-size:12px;color:var(--muted);text-align:right}
+.joystick-wrap{display:flex;justify-content:center;align-items:center;padding:15px 0 25px}.dpad{width:min(320px,75vw);aspect-ratio:1;border-radius:50%;border:5px solid #39336f;background:radial-gradient(circle at 50% 45%,#211d4a,#10132c 72%);box-shadow:inset 0 0 32px #080a1c;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:6px;padding:23px}.direction{border:2px solid #39336f;background:linear-gradient(145deg,#1c1c43,#171833);color:#ecebff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:27px;min-width:0}.direction small{font-size:10px;color:#a5a2c6;font-weight:900}.up{grid-column:2;grid-row:1;border-radius:24px 24px 0 0}.left{grid-column:1;grid-row:2;border-radius:24px 0 0 24px}.right{grid-column:3;grid-row:2;border-radius:0 24px 24px 0}.down{grid-column:2;grid-row:3;border-radius:0 0 24px 24px}.center-grip{grid-column:2;grid-row:2;align-self:center;justify-self:center;width:66px;height:66px;border-radius:50%;border:3px solid #53427c;background:radial-gradient(circle,#ff566a 0 18%,#7b244e 22%,#1b1737 68%);color:white;font-size:11px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;z-index:2}.center-grip span{font-size:21px}.center-grip.closed{background:radial-gradient(circle,#31f1d3 0 18%,#157c8b 22%,#1b1737 68%);border-color:var(--cyan);box-shadow:0 0 24px #12e4e688}.direction.active{background:#3d2d75;border-color:var(--cyan);box-shadow:0 0 16px #12e4e655}
+.footer-status{border-top:1px solid #39336b;padding-top:17px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#b6b4d9;font-size:12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff4056;margin-right:7px}.dot.on{background:#1de5b3;box-shadow:0 0 9px #1de5b3}.red{color:#ff526a;font-weight:800}.green{color:#3de8bb;font-weight:800}
+.right-panel{display:flex;flex-direction:column}.robot-display{margin:2px auto 18px;width:min(100%,390px);min-height:245px;aspect-ratio:1.22;border-radius:22px;border:1px solid #9b3eaa;background:radial-gradient(circle at center,#24204b,#17142f 72%);box-shadow:0 0 30px #e34bd966,inset 0 0 28px #0a0b1c;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px}.robot-icon{font-size:57px;filter:drop-shadow(0 0 12px #20dce566)}.robot-display h3{margin:12px 0 5px;font-size:17px}.robot-display p{margin:0;color:#aaa8d4;font-size:12px;max-width:270px;line-height:1.6}.section-label{font-size:12px;color:#b8b5de;margin:0 0 11px;font-weight:700}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}.info-card{border:1px solid #3b356d;background:#201d43;border-radius:13px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}.info-card span{color:#b6b2dc;font-size:11px;text-align:right}.value{color:var(--cyan)!important;font-weight:800;white-space:nowrap}
+.speed-control{margin-top:16px;padding:15px 16px;border-radius:14px;border:1px solid #3b356d;background:#201d43}.speed-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.speed-head label{font-size:13px;font-weight:800}.speed-number{font-size:19px;font-weight:900;color:var(--cyan)}.speed-range{width:100%;accent-color:var(--cyan);cursor:pointer}.speed-scale{display:flex;justify-content:space-between;color:#aaa8d4;font-size:10px}.instructions{margin-top:18px;padding:14px 16px;border-radius:13px;border:1px solid #39336b;background:#1c1b3c;color:#bcb9dc;font-size:12px;line-height:1.7}.instructions b{color:#f0efff}.toast{min-height:20px;color:#aaa8d4;font-size:11px;margin-top:12px;line-height:1.5}
+@media(max-width:850px){body{padding:12px}.layout{grid-template-columns:1fr;gap:16px}.panel{padding:22px 18px}header{align-items:flex-start;flex-direction:column}}@media(max-width:430px){.info-grid{grid-template-columns:1fr}.panel-head{align-items:flex-start;flex-direction:column}.helper{text-align:left}.dpad{padding:18px}.center-grip{width:58px;height:58px}}
+</style></head>
+<body><div class="app">
+<header><div class="brand"><h1>COLORFUL TRANSPORTER</h1><p>Manual D-Pad · Servo Grip · Motor Speed Control</p></div><div class="header-actions"><div class="mode" id="modeLabel">MODE: BLUETOOTH</div><button class="connect" id="connectBtn">⌁ &nbsp; Hubungkan Micro:bit</button></div></header>
+<main class="layout">
+<section class="panel"><div class="panel-head"><div class="panel-title"><span class="ico">⌘</span> D-Pad Joystick</div><div class="helper">Tekan dan tahan untuk bergerak</div></div>
+<div class="joystick-wrap"><div class="dpad">
+<button class="direction up" data-command="up">⌃<small>MAJU</small></button><button class="direction left" data-command="left">‹<small>KIRI</small></button>
+<button class="center-grip" id="gripBtn"><span>✊</span><small id="gripLabel">GRIP</small></button>
+<button class="direction right" data-command="right">›<small>KANAN</small></button><button class="direction down" data-command="down">⌄<small>MUNDUR</small></button>
+</div></div>
+<div class="footer-status"><div><span class="dot" id="statusDot"></span><b>Micro:bit BLE:</b> <span class="red" id="connectionStatus">Terputus</span></div><div id="commandStatus">Siap menerima perintah</div></div><div class="toast" id="toast">Gunakan Chrome/Edge melalui HTTPS atau localhost. Pastikan program Micro:bit mengaktifkan Bluetooth UART.</div>
+</section>
+<section class="panel right-panel"><div class="panel-head"><div class="panel-title"><span class="ico" style="color:#ff941e">▣</span> Status Transporter</div><div class="helper">Tanpa kamera</div></div>
+<div class="robot-display"><div class="robot-icon" id="robotIcon">🤖</div><h3 id="actionTitle">Transporter Siap</h3><p id="actionDescription">Hubungkan Micro:bit, lalu gunakan tombol arah, GRIP, dan pengaturan speed.</p></div>
+<p class="section-label">STATUS PERINTAH</p><div class="info-grid">
+<div class="info-card"><strong>Gerakan</strong><span class="value" id="movementValue">STOP</span></div><div class="info-card"><strong>Grip / Servo</strong><span class="value" id="gripValue">LEPAS</span></div><div class="info-card"><strong>Speed</strong><span class="value" id="speedStatus">120</span></div><div class="info-card"><strong>Perangkat</strong><span id="deviceValue">Belum terhubung</span></div>
+</div>
+<div class="speed-control"><div class="speed-head"><label for="speedSlider">⚡ Atur Speed Motor</label><output class="speed-number" id="speedValue">120</output></div><input class="speed-range" id="speedSlider" type="range" min="0" max="255" step="1" value="120"><div class="speed-scale"><span>0 · Berhenti</span><span>255 · Maksimum</span></div></div>
+<div class="instructions"><b>Protokol yang dikirim ke Micro:bit</b><br>Gerak: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>, <code>stop</code><br>Servo: <code>capit</code>, <code>lepas</code><br>Speed: angka teks <code>0</code> sampai <code>255</code>.<br><br><b>Catatan:</b> Program di Micro:bit harus membaca UART per baris (newline) dan menghubungkan perintah tersebut ke driver motor/servo sesuai pin perangkatmu.</div>
+</section></main></div>
+<script>
+const UART_SERVICE='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+// PENTING: RX adalah karakteristik untuk menerima data dari browser/Central ke Micro:bit.
+const UART_RX='6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+let device=null,writeChar=null,gripClosed=false,lastMove='stop',sendQueue=Promise.resolve();
+const $=id=>document.getElementById(id);
+function status(msg,error=false){$('toast').textContent=msg;$('toast').style.color=error?'#ff8295':'#aaa8d4'}
+function connected(on){$('statusDot').classList.toggle('on',on);$('connectionStatus').textContent=on?'Terhubung':'Terputus';$('connectionStatus').className=on?'green':'red';$('deviceValue').textContent=on?(device.name||'Micro:bit'):'Belum terhubung'}
+async function connect(){
+ if(!navigator.bluetooth){status('Web Bluetooth tidak didukung browser ini. Gunakan Chrome/Edge desktop melalui HTTPS atau localhost.',true);return}
+ try{
+  status('Meminta izin Bluetooth... pilih Micro:bit pada dialog browser.');
+  device=await navigator.bluetooth.requestDevice({filters:[{services:[UART_SERVICE]}]});
+  device.addEventListener('gattserverdisconnected',()=>{writeChar=null;connected(false);$('modeLabel').textContent='MODE: BLUETOOTH';status('Koneksi terputus. Klik Hubungkan Micro:bit untuk menyambungkan ulang.',true)});
+  status('Menghubungkan ke '+(device.name||'Micro:bit')+'...');
+  const server=await device.gatt.connect();
+  const service=await server.getPrimaryService(UART_SERVICE);
+  writeChar=await service.getCharacteristic(UART_RX);
+  connected(true);$('modeLabel').textContent='MODE: TERHUBUNG';
+  status('Berhasil terhubung. Karakteristik UART RX siap menerima perintah.');
+  await send('stop');
+ }catch(e){writeChar=null;connected(false);status('Koneksi gagal: '+e.message+'. Pastikan UART Bluetooth aktif di program Micro:bit dan bukan sedang tersambung ke perangkat lain.',true)}
+}
+function send(command){
+ $('commandStatus').textContent='Kirim: '+command;
+ if(!writeChar){status('Belum terhubung. Perintah "'+command+'" belum dikirim.',true);return Promise.resolve(false)}
+ // Serialisasi penulisan agar perintah cepat (misalnya slider) tidak saling bertabrakan.
+ sendQueue=sendQueue.then(async()=>{
+  if(!writeChar) return false;
+  const bytes=new TextEncoder().encode(String(command)+'\n');
+  if(writeChar.properties.writeWithoutResponse && writeChar.writeValueWithoutResponse) await writeChar.writeValueWithoutResponse(bytes);
+  else await writeChar.writeValue(bytes);
+  status('Terkirim ke Micro:bit: '+command);
+  return true;
+ }).catch(e=>{status('Gagal mengirim "'+command+'": '+e.message,true);return false});
+ return sendQueue;
+}
+$('connectBtn').addEventListener('click',connect);
+function stopMove(){
+ document.querySelectorAll('.direction').forEach(b=>b.classList.remove('active'));
+ lastMove='stop';$('movementValue').textContent='STOP';$('actionTitle').textContent='Transporter Berhenti';$('actionDescription').textContent='Perintah stop dikirim.';$('robotIcon').textContent='🤖';send('stop');
+}
+document.querySelectorAll('.direction').forEach(btn=>{
+ const cmd=btn.dataset.command;
+ const start=e=>{e.preventDefault();if(lastMove===cmd)return;document.querySelectorAll('.direction').forEach(b=>b.classList.remove('active'));btn.classList.add('active');lastMove=cmd;$('movementValue').textContent=cmd.toUpperCase();$('actionTitle').textContent='Perintah '+cmd.toUpperCase();$('actionDescription').textContent='Transporter menjalankan perintah '+cmd+'. Lepaskan tombol untuk berhenti.';$('robotIcon').textContent=cmd==='left'?'↩️🤖':cmd==='right'?'🤖↪️':'🤖';send(cmd)};
+ btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',e=>{e.preventDefault();stopMove()});btn.addEventListener('pointercancel',stopMove);btn.addEventListener('lostpointercapture',()=>{if(lastMove===cmd)stopMove()});
+});
+window.addEventListener('pointerup',()=>{if(lastMove!=='stop')stopMove()});
+$('gripBtn').addEventListener('click',async()=>{
+ gripClosed=!gripClosed;$('gripBtn').classList.toggle('closed',gripClosed);$('gripLabel').textContent=gripClosed?'LEPAS':'GRIP';$('gripBtn').querySelector('span').textContent=gripClosed?'✊':'🖐';$('gripValue').textContent=gripClosed?'CAPIT':'LEPAS';$('actionTitle').textContent=gripClosed?'Menjepit Benda':'Melepas Benda';$('actionDescription').textContent=gripClosed?'Servo menerima perintah capit.':'Servo menerima perintah lepas.';$('robotIcon').textContent=gripClosed?'🤖📦':'🤖';await send(gripClosed?'capit':'lepas');
+});
+$('speedSlider').addEventListener('change',e=>{
+ const n=Math.max(0,Math.min(255,Number(e.target.value)||0));$('speedValue').textContent=n;$('speedStatus').textContent=n;send(String(n));
+});
+$('speedSlider').addEventListener('input',e=>{$('speedValue').textContent=e.target.value;$('speedStatus').textContent=e.target.value});
+</script></body></html>
