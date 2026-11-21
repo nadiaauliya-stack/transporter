@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#05b8c8">
+<title>Ocean Rover Controller</title>
+<style>
+:root{
+  --deep:#063b68;--blue:#087eb5;--cyan:#35d6dc;--aqua:#baf8ee;
+  --coral:#ff8d79;--yellow:#ffe27a;--ink:#073858;--white:#f7ffff;
+  --glass:rgba(255,255,255,.78);--shadow:0 18px 45px rgba(3,62,100,.18)
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);
+ background:linear-gradient(160deg,#a9f4e8 0%,#7be2e7 32%,#54bce2 68%,#318fc9 100%);overflow-x:hidden}
+body:before,body:after{content:"";position:fixed;pointer-events:none;border-radius:50%;background:rgba(255,255,255,.18);z-index:0}
+body:before{width:380px;height:380px;left:-120px;top:12%}
+body:after{width:500px;height:500px;right:-180px;bottom:-190px}
+.bubble{position:fixed;border:2px solid rgba(255,255,255,.35);border-radius:50%;pointer-events:none;z-index:0}
+.b1{width:18px;height:18px;left:8%;bottom:10%}.b2{width:34px;height:34px;right:12%;top:15%}.b3{width:12px;height:12px;left:78%;bottom:28%}
+.wrap{position:relative;z-index:1;width:min(1000px,94%);margin:0 auto;padding:28px 0 38px}
+header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:54px;height:54px;border-radius:18px;background:linear-gradient(145deg,#fff,#d7fff8);display:grid;place-items:center;font-size:29px;box-shadow:var(--shadow)}
+h1{font-size:clamp(22px,4vw,34px);line-height:1;margin:0;color:#06466d;letter-spacing:-.8px}
+.subtitle{margin:5px 0 0;font-size:13px;color:#176b87;font-weight:700}
+.status{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.8);padding:10px 14px;border-radius:999px;font-size:13px;font-weight:800;box-shadow:0 8px 22px rgba(0,70,110,.1)}
+.dot{width:10px;height:10px;background:#f0a43d;border-radius:50%;box-shadow:0 0 0 4px rgba(240,164,61,.16)}
+.dot.on{background:#20b86b;box-shadow:0 0 0 4px rgba(32,184,107,.16)}
+main{display:grid;grid-template-columns:1fr 1.12fr;gap:18px}
+.panel{background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.8);border-radius:26px;padding:22px;box-shadow:var(--shadow)}
+.panel h2{margin:0 0 5px;font-size:19px;color:#075078}
+.hint{margin:0 0 18px;color:#39758c;font-size:12px;line-height:1.5}
+.connect{width:100%;border:0;border-radius:16px;padding:15px 18px;font-weight:900;font-size:15px;color:#fff;background:linear-gradient(100deg,#087dbb,#10bfc7);box-shadow:0 9px 20px rgba(0,143,183,.24);cursor:pointer}
+.connect:disabled{opacity:.55;cursor:not-allowed}
+.disconnect{width:100%;margin-top:9px;border:1px solid #8bcbd1;background:#e8ffff;color:#08718b;border-radius:14px;padding:11px;font-weight:800;cursor:pointer}
+.info{margin-top:14px;background:#e8fbf8;border-radius:14px;padding:12px;font-size:12px;line-height:1.6;color:#23657c}
+.robot{margin-top:15px;border-radius:18px;background:linear-gradient(135deg,#d7fff6,#d9f3ff);padding:14px;display:flex;align-items:center;gap:12px}
+.robot .emoji{font-size:42px}.robot strong{display:block;font-size:13px}.robot span{font-size:11px;color:#4d8193}
+.drive-area{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:center}
+.dpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:270px;margin:auto}
+.move{aspect-ratio:1;border:0;border-radius:17px;background:linear-gradient(145deg,#fff,#d8f8ff);color:#0877a7;font-size:24px;font-weight:900;box-shadow:0 6px 0 #9bd7df,0 10px 18px rgba(5,90,125,.12);cursor:pointer;touch-action:none;user-select:none}
+.move:active,.move.pressed{transform:translateY(4px);box-shadow:0 2px 0 #9bd7df}
+.move.empty{visibility:hidden}
+.move.stop{background:linear-gradient(145deg,#ffe8a1,#ffc978);color:#80501a;font-size:14px}
+.grip{width:100%;border:0;border-radius:18px;padding:19px 10px;background:linear-gradient(145deg,#ffb6a2,#ff897c);color:#733c38;font-size:16px;font-weight:900;box-shadow:0 7px 0 #e97870;cursor:pointer}
+.grip.secondary{background:linear-gradient(145deg,#d4fff2,#8de9d7);box-shadow:0 7px 0 #62cdbb;color:#12685e}
+.grip:active{transform:translateY(4px);box-shadow:0 3px 0 #e97870}
+.grip-note{text-align:center;font-size:11px;color:#4a7c8c;margin:10px 0 0}
+.speed{margin-top:21px;padding-top:17px;border-top:1px solid rgba(45,140,160,.18)}
+.speed-head{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:13px}
+#speedValue{color:#087eae;font-variant-numeric:tabular-nums;font-size:18px}
+input[type=range]{width:100%;accent-color:#08aebc;margin:13px 0 3px;cursor:pointer}
+.scale{display:flex;justify-content:space-between;font-size:10px;color:#548294}
+.log{margin-top:14px;background:#effdfa;border-radius:13px;padding:10px 12px;min-height:40px;font-size:11px;color:#39758c;line-height:1.45}
+footer{text-align:center;color:#eaffff;text-shadow:0 1px 3px rgba(0,70,110,.25);font-size:11px;margin-top:18px}
+@media(max-width:720px){main{grid-template-columns:1fr}.drive-area{grid-template-columns:1fr 1fr}.panel{padding:18px}.wrap{padding-top:18px}}
+@media(max-width:420px){header{align-items:flex-start;flex-direction:column}.status{align-self:flex-start}.drive-area{grid-template-columns:1fr}.dpad{width:100%}.grip-wrap{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grip-note{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+<div class="wrap">
+<header>
+ <div class="brand"><div class="logo">🐠</div><div><h1>Ocean Rover</h1><p class="subtitle">Underwater Robot Control Station</p></div></div>
+ <div class="status"><span id="dot" class="dot"></span><span id="statusText">Belum terhubung</span></div>
+</header>
+<main>
+<section class="panel">
+ <h2>🔗 Hubungkan Robot</h2>
+ <p class="hint">Nyalakan Micro:bit, lalu tekan tombol di bawah. Pilih perangkat Micro:bit dari daftar Bluetooth.</p>
+ <button class="connect" id="connectBtn">CONNECT TO MICRO:BIT</button>
+ <button class="disconnect" id="disconnectBtn" disabled>Putuskan koneksi</button>
+ <div class="info">
+  <b>Tips koneksi</b><br>
+  • Gunakan Chrome atau Edge melalui HTTPS atau localhost.<br>
+  • Pastikan Bluetooth komputer aktif dan Micro:bit menyala.<br>
+  • Firmware harus menjalankan Bluetooth UART Service.
+ </div>
+ <div class="robot"><div class="emoji">🤿</div><div><strong>Ready to explore?</strong><span id="deviceName">Robot belum tersambung</span></div></div>
+</section>
+<section class="panel">
+ <h2>🕹️ Kendali Robot</h2>
+ <p class="hint">Tekan dan tahan tombol arah untuk bergerak. Tombol STOP menghentikan motor.</p>
+ <div class="drive-area">
+  <div class="dpad">
+   <button class="move empty" aria-hidden="true" tabindex="-1"></button>
+   <button class="move" data-command="up" aria-label="Maju">▲</button>
+   <button class="move empty" aria-hidden="true" tabindex="-1"></button>
+   <button class="move" data-command="left" aria-label="Kiri">◀</button>
+   <button class="move stop" data-command="stop">STOP</button>
+   <button class="move" data-command="right" aria-label="Kanan">▶</button>
+   <button class="move empty" aria-hidden="true" tabindex="-1"></button>
+   <button class="move" data-command="down" aria-label="Mundur">▼</button>
+   <button class="move empty" aria-hidden="true" tabindex="-1"></button>
+  </div>
+  <div class="grip-wrap">
+   <button class="grip" data-command="capit">🦀<br>CAPIT</button>
+   <button class="grip secondary" data-command="lepas">🫧<br>LEPAS</button>
+   <p class="grip-note">Kontrol penjepit / servo</p>
+  </div>
+ </div>
+ <div class="speed">
+  <div class="speed-head"><label for="speed">⚡ Kecepatan motor</label><span id="speedValue">160</span></div>
+  <input id="speed" type="range" min="0" max="255" value="160" step="5">
+  <div class="scale"><span>Pelan · 0</span><span>255 · Cepat</span></div>
+ </div>
+ <div class="log" id="log" role="status" aria-live="polite">Status: hubungkan Micro:bit untuk mulai mengendalikan robot.</div>
+</section>
+</main>
+<footer>🌊 OCEAN ROVER • Explore safely, control smoothly 🐚</footer>
+</div>
+<script>
+'use strict';
+// Nordic UART Service: RX is written by the browser; TX is notifications from the micro:bit.
+const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const UART_RX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+const UART_TX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+let device = null, server = null, txCharacteristic = null, rxCharacteristic = null;
+let encoder = new TextEncoder();
+let busy = false;
+
+const $ = id => document.getElementById(id);
+function setStatus(connected, message) {
+  $('dot').classList.toggle('on', connected);
+  $('statusText').textContent = message;
+  $('connectBtn').disabled = connected || busy;
+  $('disconnectBtn').disabled = !connected;
+  $('deviceName').textContent = connected && device ? (device.name || 'Micro:bit') : 'Robot belum tersambung';
+}
+function log(message) { $('log').textContent = 'Status: ' + message; }
+async function send(command) {
+  if (!rxCharacteristic || !device?.gatt?.connected) {
+    log('Belum terhubung. Hubungkan Micro:bit terlebih dahulu.');
+    return;
+  }
+  try {
+    // Firmware MakeCode should read UART data terminated by NewLine.
+    await rxCharacteristic.writeValue(encoder.encode(command + '\n'));
+    log('Perintah terkirim: ' + command);
+  } catch (err) {
+    log('Gagal mengirim: ' + err.message);
+  }
+}
+async function connect() {
+  if (!('bluetooth' in navigator)) {
+    log('Web Bluetooth tidak tersedia. Buka website ini di Chrome/Edge pada HTTPS atau localhost.');
+    return;
+  }
+  if (busy) return;
+  busy = true; $('connectBtn').disabled = true; $('statusText').textContent = 'Mencari perangkat...';
+  try {
+    // acceptAllDevices helps when UART UUID is not included in the advertisement.
+    device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [UART_SERVICE]
+    });
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+    $('statusText').textContent = 'Menghubungkan...';
+    server = await device.gatt.connect();
+    const service = await server.getPrimaryService(UART_SERVICE);
+    rxCharacteristic = await service.getCharacteristic(UART_RX);
+    try {
+      txCharacteristic = await service.getCharacteristic(UART_TX);
+      if (txCharacteristic.properties.notify) {
+        await txCharacteristic.startNotifications();
+        txCharacteristic.addEventListener('characteristicvaluechanged', event => {
+          const value = new TextDecoder().decode(event.target.value);
+          log('Balasan Micro:bit: ' + value.trim());
+        });
+      }
+    } catch (_) { txCharacteristic = null; }
+    setStatus(true, 'Terhubung');
+    log('Terhubung ke ' + (device.name || 'Micro:bit') + '. Robot siap dikendalikan.');
+    await send('160');
+  } catch (err) {
+    rxCharacteristic = null; txCharacteristic = null;
+    setStatus(false, 'Belum terhubung');
+    if (err.name === 'NotFoundError') log('Perangkat tidak dipilih. Coba tekan Connect lagi.');
+    else if (err.name === 'SecurityError') log('Izin Bluetooth ditolak atau halaman bukan HTTPS/localhost.');
+    else log('Koneksi gagal: ' + err.message);
+  } finally {
+    busy = false;
+    $('connectBtn').disabled = !!(device?.gatt?.connected);
+  }
+}
+function onDisconnected() {
+  rxCharacteristic = null; txCharacteristic = null; server = null;
+  setStatus(false, 'Terputus');
+  log('Koneksi terputus. Hubungkan ulang untuk melanjutkan.');
+}
+function disconnect() {
+  if (device?.gatt?.connected) device.gatt.disconnect();
+  onDisconnected();
+}
+$('connectBtn').addEventListener('click', connect);
+$('disconnectBtn').addEventListener('click', disconnect);
+$('speed').addEventListener('input', event => {
+  const value = event.target.value;
+  $('speedValue').textContent = value;
+  send(value);
+});
+
+// Direction buttons send once on press and send STOP when released for safer control.
+document.querySelectorAll('[data-command]').forEach(button => {
+  const command = button.dataset.command;
+  if (['up','down','left','right'].includes(command)) {
+    const press = event => {
+      event.preventDefault();
+      button.classList.add('pressed');
+      button.setPointerCapture?.(event.pointerId);
+      send(command);
+    };
+    const release = event => {
+      event.preventDefault();
+      button.classList.remove('pressed');
+      send('stop');
+    };
+    button.addEventListener('pointerdown', press);
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    button.addEventListener('lostpointercapture', () => button.classList.remove('pressed'));
+    button.addEventListener('contextmenu', e => e.preventDefault());
+  } else {
+    button.addEventListener('click', () => send(command));
+  }
+});
+window.addEventListener('blur', () => send('stop'));
+document.addEventListener('visibilitychange', () => { if (document.hidden) send('stop'); });
+setStatus(false, 'Belum terhubung');
+</script>
+</body>
+</html>
